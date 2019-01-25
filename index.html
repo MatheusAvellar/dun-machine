@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title> The Dun Machine </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Slab|Roboto" rel="stylesheet"/>
+  <style type="text/css">
+    * {
+      -webkit-box-sizing: border-box;
+         -moz-box-sizing: border-box;
+              box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+    }
+    main {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      font-family: "Roboto", sans-serif;
+      font-size: 14px;
+      color: #0e0e0e;
+      opacity: 0;
+      -webkit-transition: opacity .7s .3s ease;
+      -o-transition: opacity .7s .3s ease;
+      -moz-transition: opacity .7s .3s ease;
+      transition: opacity .7s .3s ease;
+    }
+    .loaded main {
+      opacity: 1;
+    }
+    h1 {
+      font-weight: normal;
+    }
+    article {
+      display: -ms-grid;
+      display: grid;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+        -moz-box-pack: center;
+        -ms-flex-pack: center;
+      justify-content: center;
+      -ms-grid-columns: 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px;
+      grid-template-columns: 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px;
+      grid-row-gap: 5px;
+    }
+    input {
+      display: none;
+    }
+    input + label {
+      display: inline-block;
+      height: 50px;
+      vertical-align: middle;
+      line-height: 50px;
+      text-align: center;
+      background-color: #efefef;
+    }
+    input:first-of-type + label,
+    input:nth-of-type(11n) + label {
+      -webkit-border-top-left-radius: 3px;
+         -moz-border-radius-topleft: 3px;
+              border-top-left-radius: 3px;
+      -webkit-border-bottom-left-radius: 3px;
+         -moz-border-radius-bottomleft: 3px;
+              border-bottom-left-radius: 3px;
+    }
+    input:last-of-type + label,
+    input:nth-of-type(10n) + label {
+      -webkit-border-top-right-radius: 3px;
+         -moz-border-radius-topright: 3px;
+              border-top-right-radius: 3px;
+      -webkit-border-bottom-right-radius: 3px;
+         -moz-border-radius-bottomright: 3px;
+              border-bottom-right-radius: 3px;
+    }
+    input:checked + label {
+      background-color: #e0e0e0;
+    }
+    section {
+      position: relative;
+      font-family: inherit;
+      font-size: 16px;
+    }
+    ul {
+      margin: 0;
+      padding: 0;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+         -moz-box-pack: center;
+          -ms-flex-pack: center;
+              justify-content: center;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+         -moz-box-align: center;
+          -ms-flex-align: center;
+              align-items: center;
+      -webkit-flex-wrap: wrap;
+          -ms-flex-wrap: wrap;
+              flex-wrap: wrap;
+    }
+    section li {
+      list-style: none;
+      margin: 15px 5px -5px;
+      border: 1px solid #efefef;
+      padding: 10px;
+      -webkit-border-radius: 3px;
+         -moz-border-radius: 3px;
+              border-radius: 3px;
+      width: 45%;
+      text-align: center;
+    }
+    @media screen and (max-width: 750px) {
+      main {
+        padding: 10px;
+      }
+      article {
+        -ms-grid-columns: 10% 10% 10% 10% 10% 10% 10% 10% 10% 10%;
+        grid-template-columns: 10% 10% 10% 10% 10% 10% 10% 10% 10% 10%;
+      }
+      section li {
+        width: 100%;
+      }
+    }
+    [data-duns="0"] {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+        -moz-box-pack: center;
+        -ms-flex-pack: center;
+      justify-content: center;
+    }
+    section:empty::before {
+      content: "Nothing to see here yet!";
+      color: #afafaf;
+      font-size: 20px;
+      text-align: center;
+      width: 100%;
+      display: inline-block;
+      position: absolute;
+      margin-top: 45px;
+    }
+    section:empty::after {
+      content: "";
+      display: block;
+      background-image: url("./res/empty.png");
+      height: 500px;
+      width: 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      -webkit-background-size: contain;
+         -moz-background-size: contain;
+           -o-background-size: contain;
+              background-size: contain;
+      margin: auto;
+    }
+    section:not(.shown) {
+      display: none;
+    }
+    p {
+      margin: 0;
+    }
+    data {
+      display: block;
+    }
+    data div {
+      display: inline-block;
+      margin-right: 5px;
+    }
+    data div::after {
+      content: "(dun)";
+      font-size: 10px;
+      vertical-align: middle;
+      color: #0e0e0e;
+      opacity: 0.3;
+    }
+    data div.done::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>The Dun Machine</h1>
+    <article id="dun">
+      <input id="r0" type="radio" name="dun" value="0" checked/>
+      <label for="r0">Start</label>
+    </article>
+    <script type="text/javascript">
+      document.body.onload = _ => {
+        const secs = document.querySelectorAll("section");
+        const dun = document.getElementById("dun");
+        const DUNS = secs.length-1;
+
+        for(let i = 1; i <= DUNS; i++) {
+          const v = secs[i].dataset.duns;
+          const inp = document.createElement("input");
+          inp.type = "radio";
+          inp.name = "dun";
+          inp.value = v;
+          inp.id = "r"+v;
+          const lab = document.createElement("label");
+          lab.innerText = v;
+          lab.setAttribute("for","r"+v);
+
+          dun.appendChild(inp);
+          dun.appendChild(lab);
+        }
+
+        dun.oninput = update;
+        dun.onchange = update;
+        function update(e) {
+          const duns = document.querySelector("input[name='dun']:checked").value;
+          const sec = document.querySelector("[data-duns='" + duns + "']");
+
+          for(let i = secs.length - 1; i >= 0; i--)
+            secs[i].className = "";
+
+          if(sec)
+            sec.className = "shown";
+        }
+
+        for(const audio of document.querySelectorAll("audio"))
+          hook_audio(audio);
+
+        document.body.className = "loaded";
+      }
+
+      function hook_audio(audio_element) {
+        const data = audio_element.previousElementSibling;
+        const audio = data.nextElementSibling;
+        const AMNT = ~~data.id.split("-")[0];
+        const timestamps = data.value.split(",").map(n=>+n);
+
+        for(let i = 0; i < AMNT; i++)
+          data.appendChild(document.createElement("div"));
+
+        let pos = 0;
+        let interval;
+        function fakeontimeupdate() {
+          if(pos > AMNT) return;  
+          const curr = audio.currentTime*1e3;
+          if(curr > timestamps[pos]) {
+            data.children[pos].className = "done";
+            pos++;
+          }
+        }
+
+        audio.onplay = function() {
+          interval = setInterval(fakeontimeupdate, 50);
+        }
+
+        audio.onended = audio.onpause = function() {
+          clearInterval(interval);
+        }
+
+        audio.onseeked = function() {
+          pos = 0;
+          for(let i = 0; i < AMNT; i++) {
+            if(audio.currentTime*1e3 > timestamps[i]) {
+              data.children[pos].className = "done";
+              pos++;
+            } else data.children[i].className = "";
+          }
+        }
+      }
+    </script>
+
+    <section data-duns="0" class="shown">
+      <blockquote data-dnt="true" class="twitter-tweet" data-lang="en">
+        <p lang="en" dir="ltr">
+          How Many Duns You Say
+          <br><br>
+          2 - law &amp; order <br>
+          3 - baby one more time <br>
+          4 - here comes the bride <br>
+          5 - i’m lovin it<br>
+          6 - mario underground <br>
+          7 - crazy in love horns intro<br>
+          8 - mission impossible
+        </p>&mdash; Nathan W. Pyle (@nathanwpyle)
+        <a href="https://twitter.com/nathanwpyle/status/1077978238314520577">
+        December 26, 2018</a>
+      </blockquote>
+      <script async src="https://platform.twitter.com/widgets.js" charset="utf-8">
+      </script>
+    </section>
+    <section data-duns="1">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/dNl4-w9ZrBs">Taco Bell</a>
+          </p>
+          <data id="1-1" value="0"></data>
+          <audio controls preload>
+            <source src="./res/taco-bell.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/Z9w08Pov-yA">Mac Startup</a>
+          </p>
+          <data id="1-2" value="0"></data>
+          <audio controls preload>
+            <source src="./res/mac-startup.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="2">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/gP3MuUTmXNk">Law & Order</a>
+          </p>
+          <data id="2-1" value="0,250"></data>
+          <audio controls preload>
+            <source src="./res/law-n-order.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/yYzaEnt0kxs?t=1">Netflix</a>
+          </p>
+          <data id="2-2" value="0,175"></data>
+          <audio controls preload>
+            <source src="./res/netflix.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="3">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/C-u5WLJ9Yk4?t=16">Britney Spears - ...Baby One More Time</a>
+          </p>
+          <data id="3-1" value="0,225,500"></data>
+          <audio controls preload>
+            <source src="./res/one-more-time.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="4">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/gMR3chMAAX8?t=6">Bridal Chorus</a>
+          </p>
+          <data id="4-1" value="0,600,1050,1300"></data>
+          <audio controls preload>
+            <source src="./res/bride.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/Gb2jGy76v0Y">Windows XP Shutdown</a>
+          </p>
+          <data id="4-2" value="0,200,400,650"></data>
+          <audio controls preload>
+            <source src="./res/windows-shutdown.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/9OPc7MRm4Y8?t=3">Pink Panther Theme</a>
+          </p>
+          <data id="4-3" value="0,100,450,600"></data>
+          <audio controls preload>
+            <source src="./res/pink-panther.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/XgUB3lF9IQA?t=2">John Cena Theme</a>
+          </p>
+          <data id="4-4" value="100,400,600,900"></data>
+          <audio controls preload>
+            <source src="./res/john-cena.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="5">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/dI-xHMM8wXE">McDonald's - I'm Lovin' It</a>
+          </p>
+          <data id="5-1" value="0,150,450,700,1000"></data>
+          <audio controls preload>
+            <source src="./res/mcdonalds.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/lwSysg9o7wE?t=121">Terminator 2</a>
+          </p>
+          <data id="5-2" value="0,150,450,800,1000"></data>
+          <audio controls preload>
+            <source src="./res/terminator-2.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/-JpIjv6XSLM">Close Encounters of the Third Kind</a>
+          </p>
+          <data id="5-3" value="0,350,750,1500,2100"></data>
+          <audio controls preload>
+            <source src="./res/close-encounters.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/v0QTdCHX_-c">Brooklyn Nine-Nine</a>
+          </p>
+          <data id="5-3" value="0,150,300,550,700"></data>
+          <audio controls preload>
+            <source src="./res/brooklyn-99.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="6">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/c0SuIMUoShI">Super Mario Bros. Underground Theme</a>
+          </p>
+          <data id="6-1" value="0,100,275,375,550,650"></data>
+          <audio controls preload>
+            <source src="./res/mario-underground.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/B0jMPI_pUec?t=2">Jethro Tull - Aqualung</a>
+          </p>
+          <data id="6-2" value="0,150,450,700,1000,1500"></data>
+          <audio controls preload>
+            <source src="./res/aqualung.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="7">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/ViwtNLUqkMY">Beyoncé - Crazy In Love</a>
+          </p>
+          <data id="7-1" value="0,1100,1300,1550,1850,1950,2200"></data>
+          <audio controls preload>
+            <source src="./res/crazy-in-love.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/0J2QdDbelmY">The White Stripes - Seven Nation Army</a>
+          </p>
+          <data id="7-2" value="0,750,1100,1400,1700,2000,2900"></data>
+          <audio controls preload>
+            <source src="./res/seven-nation-army.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/iUC8dJ0D6sA?t=48">James Bond Theme</a>
+          </p>
+          <data id="7-3" value="0,300,650,900,1500,1700,2000"></data>
+          <audio controls preload>
+            <source src="./res/james-bond.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/-bTpp8PQSog?t=6">Indiana Jones Theme</a>
+          </p>
+          <data id="7-4" value="0,300,450,700,1700,2100,2200"></data>
+          <audio controls preload>
+            <source src="./res/indiana-jones.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/a01QQZyl-_I?t=5">Queen - Under Pressure</a>
+          </p>
+          <data id="7-5" value="200,400,700,950,1075,1175,1425"></data>
+          <audio controls preload>
+            <source src="./res/under-pressure.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/e9vrfEoc8_g?t=44">Superman Theme</a>
+          </p>
+          <data id="7-6" value="0,200,400,1400,1500,1650,1900"></data>
+          <audio controls preload>
+            <source src="./res/superman.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/FTQbiNvZqaY?t=3">Toto - Africa</a>
+          </p>
+          <data id="7-7" value="0,450,700,950,1150,1400,1700"></data>
+          <audio controls preload>
+            <source src="./res/africa.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="8">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/aaNrAiUNHtQ?t=150">Mission Impossible Theme</a>
+          </p>
+          <data id="8-1" value="0,500,1000,1250,1600,2100,2600,2900"></data>
+          <audio controls preload>
+            <source src="./res/mission-impossible.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/jv2WJMVPQi8?t=5">Beethoven - Symphony No. 5</a>
+          </p>
+          <data id="8-2" value="0,250,500,700,3200,3450,3700,4000"></data>
+          <audio controls preload>
+            <source src="./res/beethoven-5th.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="9">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/-bzWSJG93P8?t=9">Star Wars Imperial March</a>
+          </p>
+          <data id="9-1" value="0,600,1100,1700,2100,2200,2700,3100,3300"></data>
+          <audio controls preload>
+            <source src="./res/imperial-march.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+        <li>
+          <p>
+            <a href="https://youtu.be/rY0WxgSXdEE?t=15">Queen - Another One Bites the Dust</a>
+          </p>
+          <data id="9-2" value="0,500,1000,2000,2100,2300,2600,2900,3000"></data>
+          <audio controls preload>
+            <source src="./res/another-one-bites-the-dust.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="10">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/btPJPFnesV4?t=9">Survivor - Eye Of The Tiger</a>
+          </p>
+          <data id="10-1" value="50,1200,1600,2050,3400,3800,4250,5600,6000,6400"></data>
+          <audio controls preload>
+            <source src="./res/eye-of-the-tiger.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="11"></section>
+    <section data-duns="12">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/-cOdYyx1oKI?t=9">The Simpsons Theme</a>
+          </p>
+          <data id="12-1" value="0,400,650,950,1100,1750,2000,2500,2650,2800,2950,3100"></data>
+          <audio controls preload>
+            <source src="./res/the-simpsons.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+    <section data-duns="13"></section>
+    <section data-duns="14"></section>
+    <section data-duns="15"></section>
+    <section data-duns="16">
+      <ul>
+        <li>
+          <p>
+            <a href="https://youtu.be/27mB8verLK8?t=5">Pirates of the Caribbean</a>
+          </p>
+          <data id="16-1" value=
+"25,150,250,475,700,850,950,1200,1625,1725,1825,2100,2350,2450,2600,2750"></data>
+          <audio controls preload>
+            <source src="./res/pirates-of-the-caribbean.mp3" type="audio/mp3"/>
+          </audio>
+        </li>
+      </ul>
+    </section>
+<!-- TODO: properly credit
+      Idea -  https://twitter.com/i/status/1077978238314520577
+      Illustrations - https://icons8.com/ouch/style/fogg-5  -->
+  </main>
+</body>
+</html>
